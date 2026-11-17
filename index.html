@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="description" content="Localizador mobile de postos de abastecimento em SP com horários de funcionamento em tempo real." />
+  <title>Postos SP • Localizador & Horários</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --header-bg: #0f172a;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --green-bg: #dcfce7;
+      --green-text: #15803d;
+      --amber-bg: #fef3c7;
+      --amber-text: #b45309;
+      --red-bg: #fee2e2;
+      --red-text: #b91c1c;
+      --blue-bg: #dbeafe;
+      --blue-text: #1d4ed8;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+      --shadow-lg: 0 12px 30px rgba(15, 23, 42, 0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #cbd5e1;
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 480px;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 0 40px rgba(0,0,0,0.12);
+    }
+
+    /* Header */
+    header {
+      background: var(--header-bg);
+      color: #fff;
+      padding: 18px 16px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.2);
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.4);
+    }
+
+    .brand-title h1 {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-title span {
+      display: block;
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .clock-pill {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* Location Controls */
+    .location-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .btn-gps {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn-gps:active {
+      transform: scale(0.98);
+    }
+
+    .btn-gps.active {
+      background: #16a34a;
+    }
+
+    .city-select {
+      background: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 10px 10px;
+      font-size: 13px;
+      font-weight: 500;
+      width: 100%;
+      outline: none;
+    }
+
+    /* Search Input */
+    .search-box {
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #fff;
+      border-radius: 12px;
+      padding: 10px 36px 10px 36px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-box input::placeholder {
+      color: #94a3b8;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      font-size: 14px;
+    }
+
+    .clear-search {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #334155;
+      color: #cbd5e1;
+      border: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      font-size: 11px;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Filter Chips */
+    .filters-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 12px 16px 6px;
+      scrollbar-width: none;
+    }
+
+    .filters-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .chip {
+      white-space: nowrap;
+      padding: 7px 13px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--surface);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .chip.active {
+      background: var(--header-bg);
+      color: #fff;
+      border-color: var(--header-bg);
+    }
+
+    /* Status Banner */
+    .status-strip {
+      padding: 6px 16px 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .gps-feedback {
+      font-weight: 500;
+      color: #2563eb;
+    }
+
+    /* Cards List */
+    .cards-container {
+      padding: 4px 16px 90px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .station-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 15px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      position: relative;
+    }
+
+    .station-card:active {
+      transform: scale(0.985);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .badges-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .status-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 9px;
+      border-radius: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .status-24h { background: var(--blue-bg); color: var(--blue-text); }
+    .status-open { background: var(--green-bg); color: var(--green-text); }
+    .status-closing { background: var(--amber-bg); color: var(--amber-text); }
+    .status-closed { background: var(--red-bg); color: var(--red-text); }
+
+    .brand-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: #f1f5f9;
+      color: #334155;
+    }
+
+    .brand-SHELL { background: #fef08a; color: #854d0e; }
+    .brand-IPIRANGA { background: #fed7aa; color: #9a3412; }
+    .brand-PETROBRAS { background: #bbf7d0; color: #166534; }
+    .brand-ALE { background: #fecaca; color: #991b1b; }
+    .brand-DOMPEDRO { background: #e9d5ff; color: #6b21a8; }
+
+    .distance-tag {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+      background: #eff6ff;
+      padding: 4px 8px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    .station-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 3px;
+      line-height: 1.25;
+    }
+
+    .station-city {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .station-address {
+      font-size: 13px;
+      color: #475569;
+      line-height: 1.4;
+      margin-bottom: 10px;
+      display: flex;
+      gap: 6px;
+      align-items: flex-start;
+      user-select: text;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 10px;
+      border-top: 1px solid #f1f5f9;
+      font-size: 12px;
+      gap: 8px;
+    }
+
+    .hours-info {
+      font-weight: 600;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .footer-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ducha-pill {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .ducha-yes {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+
+    .ducha-no {
+      background: #f8fafc;
+      color: #94a3b8;
+    }
+
+    .conv-pill {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .conv-yes {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .conv-no {
+      background: #f8fafc;
+      color: #94a3b8;
+    }
+
+    .amenities-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .quick-route-btn {
+      font-size: 11px;
+      font-weight: 700;
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+      padding: 4px 9px;
+      border-radius: 8px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--text-muted);
+    }
+
+    .empty-state h3 {
+      font-size: 16px;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    /* Bottom Sheet Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(2px);
+      z-index: 50;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .bottom-sheet {
+      width: 100%;
+      max-width: 480px;
+      background: var(--surface);
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      padding: 12px 20px 28px;
+      box-shadow: var(--shadow-lg);
+      animation: slideUp 0.25s ease-out;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .sheet-handle {
+      width: 40px;
+      height: 5px;
+      background: #cbd5e1;
+      border-radius: 999px;
+      margin: 0 auto 16px;
+    }
+
+    .sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .sheet-title {
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1.2;
+      color: var(--text-main);
+    }
+
+    .sheet-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .btn-close {
+      background: #f1f5f9;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 16px;
+      color: #475569;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .detail-box {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    .detail-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+
+    .detail-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .full-address-box {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 18px;
+      font-size: 13px;
+      line-height: 1.45;
+      color: #334155;
+      user-select: text;
+    }
+
+    .action-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .btn-action {
+      padding: 14px 10px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .btn-maps {
+      background: #ffffff;
+      color: #0f172a;
+      border: 1.5px solid #cbd5e1;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+    }
+
+    .btn-waze {
+      background: #33ccff;
+      color: #0f172a;
+      border: 1.5px solid #0ea5e9;
+      box-shadow: 0 4px 12px rgba(51, 204, 255, 0.3);
+    }
+
+    .btn-whatsapp {
+      background: #25D366;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(37, 211, 102, 0.28);
+    }
+
+    .btn-copy {
+      background: #f1f5f9;
+      color: #0f172a;
+      border: 1px solid #e2e8f0;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0f172a;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header>
+      <div class="top-bar">
+        <div class="brand-title">
+          <div class="brand-icon">⛽</div>
+          <div>
+            <h1>Postos SP</h1>
+            <span>Rede Credenciada & Horários</span>
+          </div>
+        </div>
+        <div class="clock-pill" id="liveClock">🕒 --:--</div>
+      </div>
+
+      <div class="location-controls">
+        <button class="btn-gps" id="btnGps" onclick="requestLocation()">
+          <span>📍</span> <span id="gpsBtnText">Perto de mim</span>
+        </button>
+        <select class="city-select" id="citySelect" onchange="onCityChange()">
+          <option value="ALL">Todas as cidades (18)</option>
+        </select>
+      </div>
+
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Buscar posto, rua, bairro ou bandeira..." oninput="onSearchInput()" />
+        <button class="clear-search" id="clearSearchBtn" onclick="clearSearch()">✕</button>
+      </div>
+    </header>
+
+    <div class="filters-bar" id="filtersBar">
+      <button class="chip active" data-filter="ALL" onclick="setFilter('ALL', this)">Todos (29)</button>
+      <button class="chip" data-filter="OPEN" onclick="setFilter('OPEN', this)">🟢 Abertos agora</button>
+      <button class="chip" data-filter="24H" onclick="setFilter('24H', this)">🔵 24 Horas</button>
+      <button class="chip" data-filter="CONVENIENCIA" onclick="setFilter('CONVENIENCIA', this)">🏪 Conveniência</button>
+      <button class="chip" data-filter="DUCHA" onclick="setFilter('DUCHA', this)">🚿 Com Ducha</button>
+      <button class="chip" data-filter="SHELL" onclick="setFilter('SHELL', this)">Shell</button>
+      <button class="chip" data-filter="IPIRANGA" onclick="setFilter('IPIRANGA', this)">Ipiranga</button>
+      <button class="chip" data-filter="PETROBRAS" onclick="setFilter('PETROBRAS', this)">Petrobras</button>
+      <button class="chip" data-filter="ALE" onclick="setFilter('ALE', this)">ALE</button>
+      <button class="chip" data-filter="BRANCA" onclick="setFilter('BRANCA', this)">Bandeira Branca</button>
+    </div>
+
+    <div class="status-strip">
+      <span id="resultsCount">Exibindo 29 postos</span>
+      <span class="gps-feedback" id="gpsStatus">Ordem alfabética</span>
+    </div>
+
+    <main class="cards-container" id="cardsContainer"></main>
+  </div>
+
+  <!-- Bottom Sheet Detalhes -->
+  <div class="modal-backdrop" id="modalBackdrop" onclick="closeModal(event)">
+    <div class="bottom-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <div>
+          <div class="badges-row" id="sheetBadges" style="margin-bottom: 8px;"></div>
+          <h2 class="sheet-title" id="sheetTitle">Nome do Posto</h2>
+          <p class="sheet-subtitle" id="sheetRazao">RAZÃO SOCIAL LTDA</p>
+        </div>
+        <button class="btn-close" onclick="closeModal()">✕</button>
+      </div>
+
+      <div class="detail-grid">
+        <div class="detail-box">
+          <div class="detail-label">Horário</div>
+          <div class="detail-value" id="sheetHorario">--</div>
+        </div>
+        <div class="detail-box">
+          <div class="detail-label">Conveniência</div>
+          <div class="detail-value" id="sheetConveniencia">--</div>
+        </div>
+        <div class="detail-box">
+          <div class="detail-label">Ducha / Banho</div>
+          <div class="detail-value" id="sheetDucha">--</div>
+        </div>
+        <div class="detail-box">
+          <div class="detail-label">Bandeira</div>
+          <div class="detail-value" id="sheetBandeira">--</div>
+        </div>
+        <div class="detail-box" style="grid-column: span 2;">
+          <div class="detail-label">Situação Cadastral</div>
+          <div class="detail-value" id="sheetSituacao">--</div>
+        </div>
+      </div>
+
+      <div class="full-address-box">
+        <div class="detail-label" style="margin-bottom: 4px;">Endereço (Texto Informativo)</div>
+        <div id="sheetEndereco">--</div>
+      </div>
+
+      <div class="action-buttons">
+        <a id="btnGoogleMaps" href="#" target="_blank" rel="noopener noreferrer" class="btn-action btn-maps">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2Z" fill="#EA4335"/><path d="M12 2C8.13 2 5 5.13 5 9C5 10.61 5.66 12.44 6.69 14.29L15.46 3.01C14.43 2.37 13.26 2 12 2Z" fill="#4285F4"/><path d="M12 11.5C13.3807 11.5 14.5 10.3807 14.5 9C14.5 7.61929 13.3807 6.5 12 6.5C10.6193 6.5 9.5 7.61929 9.5 9C9.5 10.3807 10.6193 11.5 12 11.5Z" fill="#FFFFFF"/><path d="M6.69 14.29C8.55 17.64 12 22 12 22C12 22 14.87 18.8 16.95 15.05L9.64 9.15L6.69 14.29Z" fill="#34A853"/><path d="M15.46 3.01L9.64 9.15L16.95 15.05C18.18 12.83 19 10.67 19 9C19 6.46 17.56 4.26 15.46 3.01Z" fill="#FBBC05"/></svg> Google Maps
+        </a>
+        <a id="btnWaze" href="#" target="_blank" rel="noopener noreferrer" class="btn-action btn-waze">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12.5 3C7.2 3 3.5 6.8 3.5 11.4C3.5 13.1 4.1 14.7 5.1 15.9C4.7 16.3 3.8 16.5 3 16.4C2.7 16.4 2.5 16.7 2.7 16.9C3.6 18.1 5.3 18.8 7.1 18.8C7.2 19.8 8 20.6 9.1 20.6C10.1 20.6 10.9 19.9 11.1 18.9H13.9C14.1 19.9 14.9 20.6 15.9 20.6C17 20.6 17.9 19.7 17.9 18.6C17.9 18.3 17.8 18.1 17.7 17.9C19.8 16.5 21 14.1 21 11.4C21 6.7 17.3 3 12.5 3Z" fill="#33CCFF" stroke="#0F172A" stroke-width="1.5"/><circle cx="9.1" cy="18.6" r="1.4" fill="#0F172A"/><circle cx="15.9" cy="18.6" r="1.4" fill="#0F172A"/><circle cx="10.2" cy="10.2" r="1.1" fill="#0F172A"/><circle cx="15.2" cy="10.2" r="1.1" fill="#0F172A"/><path d="M10.2 13.2C10.9 14.3 14.4 14.3 15.1 13.2" stroke="#0F172A" stroke-width="1.4" stroke-linecap="round"/></svg> Waze
+        </a>
+        <a id="btnWhatsApp" href="#" target="_blank" rel="noopener noreferrer" class="btn-action btn-whatsapp">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2ZM17.46 16.09C17.23 16.74 16.12 17.33 15.58 17.41C15.1 17.48 14.49 17.51 13.82 17.3C13.41 17.17 12.89 17 12.22 16.71C9.4 15.49 7.56 12.65 7.42 12.46C7.28 12.27 6.28 10.94 6.28 9.56C6.28 8.18 7 7.5 7.26 7.22C7.52 6.94 7.82 6.87 8.01 6.87C8.2 6.87 8.39 6.87 8.55 6.88C8.72 6.89 8.95 6.81 9.18 7.36C9.41 7.92 9.97 9.3 10.04 9.44C10.11 9.58 10.16 9.75 10.06 9.94C9.96 10.13 9.91 10.25 9.77 10.41C9.63 10.57 9.48 10.77 9.35 10.89C9.21 11.03 9.06 11.18 9.23 11.47C9.4 11.76 9.98 12.71 10.84 13.48C11.95 14.47 12.88 14.78 13.17 14.92C13.46 15.06 13.63 15.04 13.8 14.85C13.97 14.66 14.52 14.01 14.71 13.72C14.9 13.43 15.1 13.48 15.37 13.58C15.64 13.68 17.08 14.39 17.37 14.53C17.66 14.67 17.86 14.74 17.93 14.86C18 14.98 18 15.55 17.46 16.09Z" fill="#FFFFFF"/></svg> WhatsApp
+        </a>
+        <button class="btn-action btn-copy" onclick="copyCurrentAddress()">
+          📋 Copiar Endereço
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Endereço copiado!</div>
+
+  <script>
+    const STATIONS = [
+  {
+    "id": 1,
+    "razao": "ESTORIL COMERCIO DE COMBUST E DERIVADOS DE PETROLEO",
+    "fantasia": "POSTO ESTORIL",
+    "endereco": "Av. Jerônimo de Camargo, 3920 - Caetetuba, Atibaia - SP, 12944-000",
+    "cidade": "ATIBAIA",
+    "bairro": "RECREIO ESTORIL",
+    "uf": "SP",
+    "ducha": "SIM",
+    "horario": "06:00 AS 23:00 HRS",
+    "bandeira": "SHELL",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/BLSmoAnpu8DpcxK38",
+    "lat": -23.1128,
+    "lng": -46.5653,
+    "conveniencia": "SIM",
+    "convenienciaDetalhe": "Shell Select"
+  },
+  {
+    "id": 2,
+    "razao": "AUTO POSTO HAPPY SOL LTDA",
+    "fantasia": "AUTO POSTO HAPPY-SOL",
+    "endereco": "Av. Santos Dumont, 960 - Centro, Bom Jesus dos Perdões - SP, 12955-000",
+    "cidade": "BOM JESUS DOS PERDOES",
+    "bairro": "CENTRO",
+    "uf": "SP",
+    "ducha": "NÃO",
+    "horario": "24 HRS",
+    "bandeira": "IPIRANGA",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/U3BFrb1sPiMvoeod6",
+    "lat": -23.1361,
+    "lng": -46.4678,
+    "conveniencia": "SIM",
+    "convenienciaDetalhe": "am/pm"
+  },
+  {
+    "id": 3,
+    "razao": "AUTO POSTO GALEAO LTDA ME",
+    "fantasia": "AUTO POSTO GALEAO",
+    "endereco": "Av. dos Imigrantes, 2500 - Lavapés, Bragança Paulista - SP, 12902-000",
+    "cidade": "BRAGANCA PAULISTA",
+    "bairro": "B. LAVAPES",
+    "uf": "SP",
+    "ducha": "NÃO",
+    "horario": "07:00 AS 22:00 HRS",
+    "bandeira": "PETROBRAS",
+    "situacao": "Ativo em Junho - 2026",
+    "linkMaps": "https://maps.app.goo.gl/YP4uCTh4AajGxqPV6",
+    "lat": -22.9522,
+    "lng": -46.5442,
+    "conveniencia": "SIM",
+    "convenienciaDetalhe": "BR Mania"
+  },
+  {
+    "id": 4,
+    "razao": "EUROPA EMPREENDIMENTOS LTDA",
+    "fantasia": "POSTO EUROPA",
+    "endereco": "Av. dos Imigrantes, 465 - Centro, Bragança Paulista - SP, 12902-000",
+    "cidade": "BRAGANCA PAULISTA",
+    "bairro": "CENTRO",
+    "uf": "SP",
+    "ducha": "NÃO",
+    "horario": "24 HRS",
+    "bandeira": "SHELL",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/b2LV66fsne4Ax7Tc9",
+    "lat": -22.9485,
+    "lng": -46.5448,
+    "conveniencia": "SIM",
+    "convenienciaDetalhe": "Shell Select"
+  },
+  {
+    "id": 5,
+    "razao": "AUTO POSTO SABELLA LTDA",
+    "fantasia": "POSTO SABELLA",
+    "endereco": "Praça Coronel Jacinto Osorio, 05 - Matadouro, Bragança Paulista - SP, 12910-330",
+    "cidade": "BRAGANCA PAULISTA",
+    "bairro": "MATADOURO",
+    "uf": "SP",
+    "ducha": "SIM",
+    "horario": "05:00 AS 23:59 HRS",
+    "bandeira": "SHELL",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/Qi3B1LLwBStSrN7T8",
+    "lat": -22.9468,
+    "lng": -46.5425,
+    "conveniencia": "SIM",
+    "convenienciaDetalhe": "Conveniência Local"
+  },
+  {
+    "id": 6,
+    "razao": "AUTO POSTO CITY CABREUVA LTDA",
+    "fantasia": "AUTO POSTO CITY",
+    "endereco": "Av. Alberto Peratello, 1037 - Jacaré, Cabreúva - SP, 13318-000",
+    "cidade": "CABREUVA",
+    "bairro": "JACARE",
+    "uf": "SP",
+    "ducha": "NÃO",
+    "horario": "06:00 AS 21:00 HRS",
+    "bandeira": "ALE",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/Ek137oF9BP2p4TG89",
+    "lat": -23.2683,
+    "lng": -47.0645,
+    "conveniencia": "NÃO",
+    "convenienciaDetalhe": "Não possui"
+  },
+  {
+    "id": 7,
+    "razao": "AUTO POSTO TIC TAC CABREUVA LTDA",
+    "fantasia": "AUTO POSTO TIC TAC",
+    "endereco": "Av. Ver. José Donato, 232 - Região Metropolitana de Jundiaí, Cabreúva - SP, 13315-000",
+    "cidade": "CABREUVA",
+    "bairro": "JACARE",
+    "uf": "SP",
+    "ducha": "NÃO",
+    "horario": "24 HRS",
+    "bandeira": "SHELL",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/D9Kx7WUQYTUwBFGA7",
+    "lat": -23.2721,
+    "lng": -47.0589,
+    "conveniencia": "SIM",
+    "convenienciaDetalhe": "Shell Select"
+  },
+  {
+    "id": 8,
+    "razao": "AUTO POSTO ALVORADA DE CAJAMAR LTDA",
+    "fantasia": "AUTO POSTO ALVORADA",
+    "endereco": "Av. Jordano Mendes, 1318 - Jordanesia, Cajamar - SP, 07776-400",
+    "cidade": "CAJAMAR",
+    "bairro": "MINI DISTRITO INDUSTRIAL",
+    "uf": "SP",
+    "ducha": "NÃO",
+    "horario": "24 HRS",
+    "bandeira": "IPIRANGA",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/ro4CxLRTn447jE9K8",
+    "lat": -23.3372,
+    "lng": -46.8481,
+    "conveniencia": "SIM",
+    "convenienciaDetalhe": "am/pm"
+  },
+  {
+    "id": 9,
+    "razao": "AUTO POSTO KAYAMAR LTDA",
+    "fantasia": "AUTO POSTO KAYAMAR",
+    "endereco": "Av. Ten. Marques, 27 - Polvilho, Cajamar - SP, 07750-000",
+    "cidade": "CAJAMAR",
+    "bairro": "PARAISO (POLVILHO)",
+    "uf": "SP",
+    "ducha": "NÃO",
+    "horario": "06:00 AS 22:00 HRS",
+    "bandeira": "IPIRANGA",
+    "situacao": "Ativo em Outubro - 2026",
+    "linkMaps": "https://maps.app.goo.gl/xXAWBWgyvJs3GLpn9",
+    "lat": -23.4095,
+    "lng": -46.8742,
+    "conveniencia": "SIM",
+    "convenienciaDetalhe": "am/pm"
+  },
+  {
+    "id": 10,
+    "razao": "AUTO POSTO DE SERVICOS BRESSAN LTDA",
+    "fantasia": "AUTO POSTO DE SERVICOS BRESSAN",
+    "endereco": "Av. Dom Pedro I, 1305 - Jardim Guanciale, Campo Limpo Paulista - SP, 13236-000",
+    "cidade": "CAMPO LIMPO PAULISTA",
+    "bairro": "JARDIM GUANCIALE",
+    "uf": "SP",
+    "ducha": "NÃO",
+    "horario": "05:00 AS 22:00 HRS",
+    "bandeira": "IPIRANGA",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/aBAWEmXMTFkHhfsp7",
+    "lat": -23.2084,
+    "lng": -46.7825,
+    "conveniencia": "SIM",
+    "convenienciaDetalhe": "am/pm"
+  },
+  {
+    "id": 11,
+    "razao": "AUTO POSTO VIADUTO DE MORATO EIRELLI",
+    "fantasia": "POSTO VIADUTO DE MORATO",
+    "endereco": "R. Aureliano de Gusmão, 15 - Jd Prof Franc, Francisco Morato - SP, 07910-070",
+    "cidade": "FRANCISCO MORATO",
+    "bairro": "JD PROFESSOR FRANCISCO MOR.",
+    "uf": "SP",
+    "ducha": "SIM",
+    "horario": "05:00 AS 22:00 HRS",
+    "bandeira": "SHELL",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/NG2mR2GSxut3qE5k8",
+    "lat": -23.2818,
+    "lng": -46.7435,
+    "conveniencia": "SIM",
+    "convenienciaDetalhe": "Shell Select"
+  },
+  {
+    "id": 12,
+    "razao": "AUTO POSTO ESTACAO LTDA",
+    "fantasia": "POSTO ESTACAO",
+    "endereco": "R. José Alves Ferreira Filho, 19 - Centro, Franco da Rocha - SP, 07850-323",
+    "cidade": "FRANCO DA ROCHA",
+    "bairro": "CENTRO",
+    "uf": "SP",
+    "ducha": "NÃO",
+    "horario": "06:00 AS 23:00 HRS",
+    "bandeira": "IPIRANGA",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/8BxR1JPbhdLjGZHt6",
+    "lat": -23.3285,
+    "lng": -46.7268,
+    "conveniencia": "SIM",
+    "convenienciaDetalhe": "am/pm"
+  },
+  {
+    "id": 13,
+    "razao": "PEGASUS AUTO POSTO LTDA",
+    "fantasia": "PEGASUS",
+    "endereco": "Av. Vinte e Nove de Abril, 306 - Vila Santa Clara, Itatiba - SP, 13250",
+    "cidade": "ITATIBA",
+    "bairro": "VILA SANTA CLARA",
+    "uf": "SP",
+    "ducha": "SIM",
+    "horario": "08:00 AS 22:00 HRS",
+    "bandeira": "BRANCA",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/nksyLUCD5kc3Zz899",
+    "lat": -23.0052,
+    "lng": -46.8421,
+    "conveniencia": "NÃO",
+    "convenienciaDetalhe": "Não possui"
+  },
+  {
+    "id": 14,
+    "razao": "AUTO POSTO BROTAS LTDA",
+    "fantasia": "POSTO BROTAS",
+    "endereco": "Av. Benedito Alves Barbosa Sobrinho, 872 - Jardim Santa Filomena, Itatiba - SP, 13256-580",
+    "cidade": "ITATIBA",
+    "bairro": "BROTAS",
+    "uf": "SP",
+    "ducha": "SIM",
+    "horario": "06:00 AS 22:00 HRS",
+    "bandeira": "IPIRANGA",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/x6xdTUDTiqybzPJf7",
+    "lat": -23.0145,
+    "lng": -46.835,
+    "conveniencia": "SIM",
+    "convenienciaDetalhe": "am/pm"
+  },
+  {
+    "id": 15,
+    "razao": "CENTRO DE CONV. E POSTO DE COMB. PARATY LTDA",
+    "fantasia": "POSTO PARATY",
+    "endereco": "R. Luíz Scavone, 460 - Centro, Itatiba - SP, 13255-290",
+    "cidade": "ITATIBA",
+    "bairro": "CENTRO",
+    "uf": "SP",
+    "ducha": "NÃO",
+    "horario": "06:00 AS 23:00 HRS",
+    "bandeira": "PETROBRAS",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/NpHa6DpDrawqWji8A",
+    "lat": -23.0068,
+    "lng": -46.8389,
+    "conveniencia": "SIM",
+    "convenienciaDetalhe": "BR Mania (Centro de Conv.)"
+  },
+  {
+    "id": 16,
+    "razao": "AUTO POSTO CEDA SPECIOSA LTDA - EPP",
+    "fantasia": "AUTO POSTO CEDA SPECIOSA",
+    "endereco": "Av. Dr. Ermelindo Maffei, 696 - São Luiz, Itu - SP, 13304-305",
+    "cidade": "ITU",
+    "bairro": "CHAFARIS",
+    "uf": "SP",
+    "ducha": "SIM",
+    "horario": "24 HRS",
+    "bandeira": "DOMPEDRO",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/J51jH4sDKKdDbMPx8",
+    "lat": -23.2712,
+    "lng": -47.2915,
+    "conveniencia": "SIM",
+    "convenienciaDetalhe": "Conveniência Dom Pedro"
+  },
+  {
+    "id": 17,
+    "razao": "AUTO POSTO SAO BENTO DE ITU LTDA",
+    "fantasia": "POSTO SAO BENTO",
+    "endereco": "R. Paulo Eduardo Xavier de Tolêdo, 532 - São Luiz, Itu - SP, 13304-240",
+    "cidade": "ITU",
+    "bairro": "SAO LUIZ",
+    "uf": "SP",
+    "ducha": "NÃO",
+    "horario": "24 HRS",
+    "bandeira": "ALE",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/YmeLSUwJiFRZax7x5",
+    "lat": -23.2735,
+    "lng": -47.2942,
+    "conveniencia": "SIM",
+    "convenienciaDetalhe": "Conveniência ALE"
+  },
+  {
+    "id": 18,
+    "razao": "V8 ITUPEVA AUTO POSTO LTDA",
+    "fantasia": "V8 ITUPEVA AUTO POSTO",
+    "endereco": "Av. Emílio Chechinato, 900 - Vila Sao Joao, Itupeva - SP, 13295-000",
+    "cidade": "ITUPEVA",
+    "bairro": "VILA SAO JOAO",
+    "uf": "SP",
+    "ducha": "NÃO",
+    "horario": "06:00 AS 22:00 HRS",
+    "bandeira": "BRANCA",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/7Zg1bPhUFgXg7cbg6",
+    "lat": -23.1532,
+    "lng": -47.0578,
+    "conveniencia": "NÃO",
+    "convenienciaDetalhe": "Não possui"
+  },
+  {
+    "id": 19,
+    "razao": "ARLS AUTO POSTO LTDA",
+    "fantasia": "POSTO ARLS",
+    "endereco": "Av. Ângelo Bernucci, 460 - Centro, Jarinu - SP, 13240-000",
+    "cidade": "JARINU",
+    "bairro": "BAIRRO FIM DE CAMPO",
+    "uf": "SP",
+    "ducha": "NÃO",
+    "horario": "06:00 AS 22:00 HRS",
+    "bandeira": "BRANCA",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/9QP5wgKi2JLGdsyp8",
+    "lat": -23.1014,
+    "lng": -46.7283,
+    "conveniencia": "NÃO",
+    "convenienciaDetalhe": "Não possui"
+  },
+  {
+    "id": 20,
+    "razao": "AUTO POSTO VITALIA LTDA",
+    "fantasia": "AUTO POSTO VITALIA",
+    "endereco": "Av. Pref. Luis Latorre, 5665 - Vila das Hortencias, Jundiaí - SP, 13209-430",
+    "cidade": "JUNDIAI",
+    "bairro": "VILA DAS HORTENCIAS",
+    "uf": "SP",
+    "ducha": "NÃO",
+    "horario": "06:00 AS 22:00 HRS",
+    "bandeira": "SHELL",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/Beiy9hS4cshuPWQN8",
+    "lat": -23.1842,
+    "lng": -46.9125,
+    "conveniencia": "SIM",
+    "convenienciaDetalhe": "Shell Select"
+  },
+  {
+    "id": 21,
+    "razao": "AUTO POSTO CINCO EMES LTDA",
+    "fantasia": "POSTO CENTENARIO",
+    "endereco": "Rod. Dom Gabriel Paulino Bueno Couto - Retiro, Jundiaí - SP, 13208-290",
+    "cidade": "JUNDIAI",
+    "bairro": "RETIRO",
+    "uf": "SP",
+    "ducha": "SIM",
+    "horario": "06:00 AS 22:00 HRS",
+    "bandeira": "IPIRANGA",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/SkunMB9Vn92vkJir6",
+    "lat": -23.1685,
+    "lng": -46.9412,
+    "conveniencia": "SIM",
+    "convenienciaDetalhe": "am/pm"
+  },
+  {
+    "id": 22,
+    "razao": "AUTO POSTO JARDIM DAS HORTENCIAS DE JUNDIAI LTDA",
+    "fantasia": "POSTO JARDIM DAS HORTENCIAS",
+    "endereco": "Av. Pref. Luis Latorre, 4140 - Retiro, Jundiaí - SP, 13209-430",
+    "cidade": "JUNDIAI",
+    "bairro": "JARDIM DAS HORTENCIAS",
+    "uf": "SP",
+    "ducha": "NÃO",
+    "horario": "06:00 AS 22:00 HRS",
+    "bandeira": "SHELL",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/XeWaH2FLePFeMLri9",
+    "lat": -23.1815,
+    "lng": -46.9058,
+    "conveniencia": "SIM",
+    "convenienciaDetalhe": "Shell Select"
+  },
+  {
+    "id": 23,
+    "razao": "AUTO POSTO VITORIA DE MAIRIPORÃ LTDA",
+    "fantasia": "AUTO POSTO VITORIA DE MAIRIPORÃ",
+    "endereco": "Av. Leonor de Oliveira, 130 - Jd Galrao, Mairiporã - SP, 07600-000",
+    "cidade": "MAIRIPORA",
+    "bairro": "JARDIM GALRÃO",
+    "uf": "SP",
+    "ducha": "SIM",
+    "horario": "24 HRS",
+    "bandeira": "IPIRANGA",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/tcmYCVSQanMNC7Jn8",
+    "lat": -23.3189,
+    "lng": -46.5882,
+    "conveniencia": "SIM",
+    "convenienciaDetalhe": "am/pm"
+  },
+  {
+    "id": 24,
+    "razao": "BARBOSA AUTO POSTO LIMITADA",
+    "fantasia": "BARBOSA AUTO POSTO",
+    "endereco": "Av. Tab. Passarela, 77 - Centro, Mairiporã - SP, 07600-000",
+    "cidade": "MAIRIPORA",
+    "bairro": "CENTRO",
+    "uf": "SP",
+    "ducha": "NÃO",
+    "horario": "05:00 AS 24:00 HRS",
+    "bandeira": "PETROBRAS",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/U4uRSDQ5fCb1knmY9",
+    "lat": -23.3175,
+    "lng": -46.5865,
+    "conveniencia": "SIM",
+    "convenienciaDetalhe": "BR Mania"
+  },
+  {
+    "id": 25,
+    "razao": "AUTO POSTO IRMAOS MIGUEL LTDA",
+    "fantasia": "AUTO POSTO IRMAOS MIGUEL LTDA",
+    "endereco": "R. Araújo Campos, 857 - Vila Santo Antônio, Morungaba - SP, 13260-000",
+    "cidade": "MORUNGABA",
+    "bairro": "VILA SANTO ANTONIO",
+    "uf": "SP",
+    "ducha": "SIM",
+    "horario": "06:00 AS 20:00 HRS",
+    "bandeira": "SHELL",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/xGnZbJpoBhiUgFVFA",
+    "lat": -22.8812,
+    "lng": -46.7918,
+    "conveniencia": "SIM",
+    "convenienciaDetalhe": "Conveniência Local"
+  },
+  {
+    "id": 26,
+    "razao": "JOSE APARECIDO FRANCO E CIA LTDA",
+    "fantasia": "AUTO POSTO PINHALZINHO",
+    "endereco": "Rua Variante Americo Pedro Benedetti, Estr. da Rosa Mendes, 1, Pinhalzinho - SP, 12995-000",
+    "cidade": "PINHALZINHO",
+    "bairro": "ROSA MENDE",
+    "uf": "SP",
+    "ducha": "NÃO",
+    "horario": "24 HRS",
+    "bandeira": "IPIRANGA",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/sHxH133y1HsEK9Tg6",
+    "lat": -22.7815,
+    "lng": -46.5712,
+    "conveniencia": "SIM",
+    "convenienciaDetalhe": "am/pm"
+  },
+  {
+    "id": 27,
+    "razao": "GAS ONE COMBUSTIVEIS E CONVENIENCIAS LTDA",
+    "fantasia": "GAS ONE COMB. E CONVENIENCIAS",
+    "endereco": "Av. Papa João XXIII, 399 - Jardim Claudia, Piracaia - SP, 12970-000",
+    "cidade": "PIRACAIA",
+    "bairro": "CACHOEIRA ABAIXO",
+    "uf": "SP",
+    "ducha": "NÃO",
+    "horario": "06:00 AS 20:00 HRS",
+    "bandeira": "IPIRANGA",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/B3mwaATWuBriG3bx5",
+    "lat": -23.0542,
+    "lng": -46.3581,
+    "conveniencia": "SIM",
+    "convenienciaDetalhe": "am/pm (Conveniências)"
+  },
+  {
+    "id": 28,
+    "razao": "POSTO ESTRELA DA MANHA DE SALTO LTDA",
+    "fantasia": "POSTO ESTRELA DA MANHA",
+    "endereco": "R. Nove de Julho, 1142 - Centro, Salto - SP, 13320-000",
+    "cidade": "SALTO",
+    "bairro": "VL NOVA",
+    "uf": "SP",
+    "ducha": "NÃO",
+    "horario": "06:00 AS 18:00 HRS",
+    "bandeira": "BRANCA",
+    "situacao": "Ativo em Maio -2025",
+    "linkMaps": "https://maps.app.goo.gl/8uMBr94eYNjUjAaX8",
+    "lat": -23.1995,
+    "lng": -47.2912,
+    "conveniencia": "NÃO",
+    "convenienciaDetalhe": "Não possui"
+  },
+  {
+    "id": 29,
+    "razao": "POSTO MARECHAL DE SALTO LTDA",
+    "fantasia": "POSTO MARECHAL",
+    "endereco": "R. Mal. Deodoro da Fonseca, 876 - Centro, Salto - SP, 13322-160",
+    "cidade": "SALTO",
+    "bairro": "CENTRO",
+    "uf": "SP",
+    "ducha": "NÃO",
+    "horario": "06:00 AS 18:00 HRS",
+    "bandeira": "SHELL",
+    "situacao": "Ativo em Dezembro - 2025",
+    "linkMaps": "https://maps.app.goo.gl/BL9uUpjCfHrGPDQ16",
+    "lat": -23.2018,
+    "lng": -47.2895,
+    "conveniencia": "SIM",
+    "convenienciaDetalhe": "Shell Select"
+  }
+];
+
+    let userCoords = null;
+    let selectedCity = "ALL";
+    let activeFilter = "ALL";
+    let searchQuery = "";
+    let currentModalStation = null;
+
+    // Atualiza relógio em tempo real
+    function updateClock() {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('liveClock').textContent = `🕒 ${hh}:${mm}`;
+    }
+    setInterval(updateClock, 15000);
+    updateClock();
+
+    // Popula seletor de cidades
+    function initCities() {
+      const cities = [...new Set(STATIONS.map(s => s.cidade))].sort();
+      const select = document.getElementById('citySelect');
+      select.innerHTML = `<option value="ALL">Todas as cidades (${cities.length})</option>`;
+      cities.forEach(city => {
+        const count = STATIONS.filter(s => s.cidade === city).length;
+        const opt = document.createElement('option');
+        opt.value = city;
+        opt.textContent = `${city} (${count})`;
+        select.appendChild(opt);
+      });
+    }
+
+    // Avalia status de funcionamento em tempo real
+    function getOperatingStatus(horarioStr) {
+      const clean = horarioStr.toUpperCase().trim();
+      if (clean.includes('24')) {
+        return {
+          code: '24H',
+          isOpen: true,
+          label: 'ABERTO 24H',
+          cssClass: 'status-24h'
+        };
+      }
+
+      const match = clean.match(/(\d{2}):(\d{2})\s*AS\s*(\d{2}):(\d{2})/);
+      if (!match) {
+        return {
+          code: 'OPEN',
+          isOpen: true,
+          label: clean,
+          cssClass: 'status-open'
+        };
+      }
+
+      const openMins = parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
+      let closeMins = parseInt(match[3], 10) * 60 + parseInt(match[4], 10);
+      if (closeMins === 0) closeMins = 24 * 60;
+
+      const now = new Date();
+      const nowMins = now.getHours() * 60 + now.getMinutes();
+
+      if (nowMins >= openMins && nowMins < closeMins) {
+        const remaining = closeMins - nowMins;
+        if (remaining <= 60) {
+          return {
+            code: 'CLOSING',
+            isOpen: true,
+            label: `FECHA EM ${remaining} MIN`,
+            cssClass: 'status-closing'
+          };
+        }
+        return {
+          code: 'OPEN',
+          isOpen: true,
+          label: 'ABERTO AGORA',
+          cssClass: 'status-open'
+        };
+      }
+
+      return {
+        code: 'CLOSED',
+        isOpen: false,
+        label: `FECHADO • ABRE ${match[1]}:${match[2]}`,
+        cssClass: 'status-closed'
+      };
+    }
+
+    // Cálculo de distância Haversine (km)
+    function calcDistanceKm(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    function requestLocation() {
+      const btn = document.getElementById('btnGps');
+      const btnText = document.getElementById('gpsBtnText');
+      const status = document.getElementById('gpsStatus');
+
+      if (!navigator.geolocation) {
+        status.textContent = 'GPS não suportado neste navegador';
+        return;
+      }
+
+      btnText.textContent = 'Localizando...';
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          userCoords = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude
+          };
+          btn.classList.add('active');
+          btnText.textContent = 'GPS Ativo';
+          status.textContent = 'Ordenado por proximidade';
+          renderStations();
+        },
+        (err) => {
+          btnText.textContent = 'Perto de mim';
+          status.textContent = 'Permissão de GPS negada';
+          showToast('Ative a localização do aparelho para ordenar por distância.');
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+
+    function onCityChange() {
+      selectedCity = document.getElementById('citySelect').value;
+      renderStations();
+    }
+
+    function onSearchInput() {
+      const input = document.getElementById('searchInput');
+      searchQuery = input.value.trim().toLowerCase();
+      document.getElementById('clearSearchBtn').style.display = searchQuery ? 'flex' : 'none';
+      renderStations();
+    }
+
+    function clearSearch() {
+      document.getElementById('searchInput').value = '';
+      searchQuery = '';
+      document.getElementById('clearSearchBtn').style.display = 'none';
+      renderStations();
+    }
+
+    function setFilter(filter, el) {
+      activeFilter = filter;
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      renderStations();
+    }
+
+    function renderStations() {
+      const container = document.getElementById('cardsContainer');
+
+      let list = STATIONS.map(st => {
+        const status = getOperatingStatus(st.horario);
+        const dist = userCoords ? calcDistanceKm(userCoords.lat, userCoords.lng, st.lat, st.lng) : null;
+        return { ...st, status, dist };
+      });
+
+      // Filtro por cidade
+      if (selectedCity !== 'ALL') {
+        list = list.filter(s => s.cidade === selectedCity);
+      }
+
+      // Filtro por chip
+      if (activeFilter === 'OPEN') {
+        list = list.filter(s => s.status.isOpen);
+      } else if (activeFilter === '24H') {
+        list = list.filter(s => s.status.code === '24H');
+      } else if (activeFilter === 'CONVENIENCIA') {
+        list = list.filter(s => s.conveniencia === 'SIM');
+      } else if (activeFilter === 'DUCHA') {
+        list = list.filter(s => s.ducha === 'SIM');
+      } else if (['SHELL', 'IPIRANGA', 'PETROBRAS', 'ALE', 'BRANCA'].includes(activeFilter)) {
+        list = list.filter(s => s.bandeira === activeFilter);
+      }
+
+      // Busca textual
+      if (searchQuery) {
+        list = list.filter(s =>
+          s.fantasia.toLowerCase().includes(searchQuery) ||
+          s.razao.toLowerCase().includes(searchQuery) ||
+          s.endereco.toLowerCase().includes(searchQuery) ||
+          s.cidade.toLowerCase().includes(searchQuery) ||
+          s.bairro.toLowerCase().includes(searchQuery) ||
+          s.bandeira.toLowerCase().includes(searchQuery)
+        );
+      }
+
+      // Ordenação
+      if (userCoords) {
+        list.sort((a, b) => a.dist - b.dist);
+      } else {
+        list.sort((a, b) => a.cidade.localeCompare(b.cidade) || a.fantasia.localeCompare(b.fantasia));
+      }
+
+      document.getElementById('resultsCount').textContent =
+        list.length === 1 ? 'Exibindo 1 posto' : `Exibindo ${list.length} postos`;
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div style="font-size: 36px; margin-bottom: 10px;">⛽</div>
+            <h3>Nenhum posto encontrado</h3>
+            <p style="font-size: 13px;">Tente limpar a busca ou mudar os filtros selecionados.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = list.map(st => `
+        <article class="station-card" onclick="openModal(${st.id})">
+          <div class="card-top">
+            <div class="badges-row">
+              <span class="status-badge ${st.status.cssClass}">${st.status.label}</span>
+              <span class="brand-badge brand-${st.bandeira}">${st.bandeira}</span>
+            </div>
+            ${st.dist !== null ? `<span class="distance-tag">📍 ${st.dist.toFixed(1)} km</span>` : ''}
+          </div>
+          <h3 class="station-name">${st.fantasia}</h3>
+          <div class="station-city">${st.cidade} • ${st.bairro}</div>
+          <div class="station-address">
+            <span>📌</span>
+            <span>${st.endereco}</span>
+          </div>
+          <div class="amenities-row">
+            <span class="conv-pill ${st.conveniencia === 'SIM' ? 'conv-yes' : 'conv-no'}">
+              ${st.conveniencia === 'SIM' ? `🏪 ${st.convenienciaDetalhe}` : '🏪 Sem conveniência'}
+            </span>
+            <span class="ducha-pill ${st.ducha === 'SIM' ? 'ducha-yes' : 'ducha-no'}">
+              ${st.ducha === 'SIM' ? '🚿 Com Ducha' : 'Sem ducha'}
+            </span>
+          </div>
+          <div class="card-footer">
+            <span class="hours-info">🕒 ${st.horario}</span>
+            <div class="footer-right">
+              <a href="${st.linkMaps}" target="_blank" rel="noopener noreferrer" class="quick-route-btn" style="background:#ffffff;color:#0f172a;border-color:#cbd5e1;" onclick="event.stopPropagation()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2Z" fill="#EA4335"/><path d="M12 2C8.13 2 5 5.13 5 9C5 10.61 5.66 12.44 6.69 14.29L15.46 3.01C14.43 2.37 13.26 2 12 2Z" fill="#4285F4"/><path d="M12 11.5C13.3807 11.5 14.5 10.3807 14.5 9C14.5 7.61929 13.3807 6.5 12 6.5C10.6193 6.5 9.5 7.61929 9.5 9C9.5 10.3807 10.6193 11.5 12 11.5Z" fill="#FFFFFF"/><path d="M6.69 14.29C8.55 17.64 12 22 12 22C12 22 14.87 18.8 16.95 15.05L9.64 9.15L6.69 14.29Z" fill="#34A853"/><path d="M15.46 3.01L9.64 9.15L16.95 15.05C18.18 12.83 19 10.67 19 9C19 6.46 17.56 4.26 15.46 3.01Z" fill="#FBBC05"/></svg> Maps
+              </a>
+              <a href="https://waze.com/ul?ll=${st.lat},${st.lng}&navigate=yes" target="_blank" rel="noopener noreferrer" class="quick-route-btn" style="background:#e0f7ff;color:#0f172a;border-color:#7dd3fc;" onclick="event.stopPropagation()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12.5 3C7.2 3 3.5 6.8 3.5 11.4C3.5 13.1 4.1 14.7 5.1 15.9C4.7 16.3 3.8 16.5 3 16.4C2.7 16.4 2.5 16.7 2.7 16.9C3.6 18.1 5.3 18.8 7.1 18.8C7.2 19.8 8 20.6 9.1 20.6C10.1 20.6 10.9 19.9 11.1 18.9H13.9C14.1 19.9 14.9 20.6 15.9 20.6C17 20.6 17.9 19.7 17.9 18.6C17.9 18.3 17.8 18.1 17.7 17.9C19.8 16.5 21 14.1 21 11.4C21 6.7 17.3 3 12.5 3Z" fill="#33CCFF" stroke="#0F172A" stroke-width="1.5"/><circle cx="9.1" cy="18.6" r="1.4" fill="#0F172A"/><circle cx="15.9" cy="18.6" r="1.4" fill="#0F172A"/><circle cx="10.2" cy="10.2" r="1.1" fill="#0F172A"/><circle cx="15.2" cy="10.2" r="1.1" fill="#0F172A"/><path d="M10.2 13.2C10.9 14.3 14.4 14.3 15.1 13.2" stroke="#0F172A" stroke-width="1.4" stroke-linecap="round"/></svg> Waze
+              </a>
+              <a href="${buildWhatsAppShareUrl(st)}" target="_blank" rel="noopener noreferrer" class="quick-route-btn" title="Compartilhar no WhatsApp" aria-label="Compartilhar no WhatsApp" style="background:#25D366;color:#ffffff;border-color:#1ebe5d;padding:4px 7px;" onclick="event.stopPropagation()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2ZM17.46 16.09C17.23 16.74 16.12 17.33 15.58 17.41C15.1 17.48 14.49 17.51 13.82 17.3C13.41 17.17 12.89 17 12.22 16.71C9.4 15.49 7.56 12.65 7.42 12.46C7.28 12.27 6.28 10.94 6.28 9.56C6.28 8.18 7 7.5 7.26 7.22C7.52 6.94 7.82 6.87 8.01 6.87C8.2 6.87 8.39 6.87 8.55 6.88C8.72 6.89 8.95 6.81 9.18 7.36C9.41 7.92 9.97 9.3 10.04 9.44C10.11 9.58 10.16 9.75 10.06 9.94C9.96 10.13 9.91 10.25 9.77 10.41C9.63 10.57 9.48 10.77 9.35 10.89C9.21 11.03 9.06 11.18 9.23 11.47C9.4 11.76 9.98 12.71 10.84 13.48C11.95 14.47 12.88 14.78 13.17 14.92C13.46 15.06 13.63 15.04 13.8 14.85C13.97 14.66 14.52 14.01 14.71 13.72C14.9 13.43 15.1 13.48 15.37 13.58C15.64 13.68 17.08 14.39 17.37 14.53C17.66 14.67 17.86 14.74 17.93 14.86C18 14.98 18 15.55 17.46 16.09Z" fill="#FFFFFF"/></svg>
+              </a>
+            </div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function buildWhatsAppShareUrl(st) {
+      const convText = st.conveniencia === 'SIM' ? `Sim (${st.convenienciaDetalhe})` : 'Não';
+      const msg = [
+        `⛽ *${st.fantasia}* (${st.bandeira})`,
+        `📍 *Cidade:* ${st.cidade} - ${st.bairro}`,
+        `📌 *Endereço:* ${st.endereco}`,
+        `🕒 *Horário:* ${st.horario}`,
+        `🏪 *Conveniência:* ${convText} | 🚿 *Ducha:* ${st.ducha}`,
+        `🗺️ *Google Maps:* ${st.linkMaps}`,
+        `🚗 *Waze:* https://waze.com/ul?ll=${st.lat},${st.lng}&navigate=yes`
+      ].join('\n');
+      return `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+    }
+
+    function openModal(id) {
+      const st = STATIONS.find(s => s.id === id);
+      if (!st) return;
+      currentModalStation = st;
+      const status = getOperatingStatus(st.horario);
+
+      document.getElementById('sheetBadges').innerHTML = `
+        <span class="status-badge ${status.cssClass}">${status.label}</span>
+        <span class="brand-badge brand-${st.bandeira}">${st.bandeira}</span>
+      `;
+      document.getElementById('sheetTitle').textContent = st.fantasia;
+      document.getElementById('sheetRazao').textContent = st.razao;
+      document.getElementById('sheetHorario').textContent = st.horario;
+      document.getElementById('sheetConveniencia').textContent = st.conveniencia === 'SIM' ? `SIM (${st.convenienciaDetalhe})` : 'Não possui';
+      document.getElementById('sheetDucha').textContent = st.ducha === 'SIM' ? 'Disponível (SIM)' : 'Não possui';
+      document.getElementById('sheetBandeira').textContent = st.bandeira;
+      document.getElementById('sheetSituacao').textContent = st.situacao;
+      document.getElementById('sheetEndereco').textContent = `${st.endereco} (${st.bairro} - ${st.cidade}/${st.uf})`;
+
+      // Usa exclusivamente o link oficial da coluna LINK MAPS da planilha
+      document.getElementById('btnGoogleMaps').href = st.linkMaps;
+      document.getElementById('btnWaze').href = `https://waze.com/ul?ll=${st.lat},${st.lng}&navigate=yes`;
+      document.getElementById('btnWhatsApp').href = buildWhatsAppShareUrl(st);
+
+      document.getElementById('modalBackdrop').classList.add('open');
+    }
+
+    function closeModal(e) {
+      if (!e || e.target.id === 'modalBackdrop') {
+        document.getElementById('modalBackdrop').classList.remove('open');
+      }
+    }
+
+    function copyCurrentAddress() {
+      if (!currentModalStation) return;
+      const text = `${currentModalStation.fantasia} - ${currentModalStation.endereco}`;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Endereço copiado para a área de transferência!');
+      });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    initCities();
+    renderStations();
+  </script>
+</body>
+</html>
